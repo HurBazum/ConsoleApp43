@@ -8,7 +8,7 @@ namespace P43.Lib;
 
 public class MessageWriter
 {
-    public async Task WriteAsync(Socket socket, MessageBase message)
+    public async Task WriteAsync(Socket socket, IMessageBase message)
     {
         var writer = new ArrayBufferWriter<byte>();
 

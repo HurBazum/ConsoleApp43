@@ -1,4 +1,5 @@
 ﻿using P43.Lib;
+using P43.Lib.Handlers.Client;
 
 namespace P43.ClientApp;
 
@@ -6,7 +7,21 @@ class Program
 {
     private static async Task Main(string[] args)
     {
-        Client client = new();
+        ClientState state = new();
+        object[] handlers = 
+            [ 
+            new LoginResponseHandler(state), 
+            new PrivateMessageHandler(), 
+            new PublicMessageHandler(), 
+            new SystemMessageHandler()
+            ];
+
+        var dispatcher = new ResponseHandlersDispatcher();
+
+        dispatcher.SetHandlers(handlers);
+
+        Client client = new(dispatcher, state);
+
         await client.Start();
 
         Task getting = client.ProcessingAsync();

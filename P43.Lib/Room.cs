@@ -15,7 +15,7 @@ public class Room
         OwnerId = ownerId
     };
 
-    public void AddMember(Guid memberId) =>_members.Add(memberId);
+    public void AddMember(Guid memberId) => _members.Add(memberId);
 
     public void RemoveMember(Guid memberId) => _members.Remove(memberId);
 
@@ -35,8 +35,5 @@ public class Room
         }
     }
 
-    public override int GetHashCode()
-    {
-        return base.GetHashCode();
-    }
+    public override int GetHashCode() => base.GetHashCode();
 }

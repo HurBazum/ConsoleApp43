@@ -13,7 +13,7 @@ public class ClientSession : IDisposable
     private readonly Socket _socket;
     private readonly Stream_Reader _parser;
     private readonly MessageWriter _writer;
-    private readonly Channel<MessageBase> _messageChannel = Channel.CreateBounded<MessageBase>(100);
+    private readonly Channel<IMessageBase> _messageChannel = Channel.CreateBounded<IMessageBase>(100);
 
     public event EventHandler<ReceivedMessageEventArgs>? OnMessageReceived;    
     public event Action<Guid>? OnDisconnected;
@@ -61,29 +61,40 @@ public class ClientSession : IDisposable
         }
     }
     
-    private async Task HandleMessage(byte[] message, int length)
+    private Task HandleMessage(byte[] message, int length)
     {
-        var msg = JsonSerializer.Deserialize<MessageBase>(message.AsSpan(0, length));
+        var msg = JsonSerializer.Deserialize<IMessageBase>(message.AsSpan(0, length));
         msg.SenderId = SessionId;
         msg.SentDate = DateTime.UtcNow;
         msg.Login = Login;
         
-        OnMessageReceived?.Invoke(this, new ReceivedMessageEventArgs { Message = msg });
+        OnMessageReceived?
+            .Invoke(this, 
+            new ReceivedMessageEventArgs 
+            {
+                Context = new()
+                {
+                    Message = msg,
+                    Session = this
+                }
+            });
         
         ArrayPool<byte>.Shared.Return(message);
+
+        return Task.CompletedTask;
     }
     
     public async Task HandleChannel()
     {
-        await foreach(MessageBase message in _messageChannel.Reader.ReadAllAsync())
+        await foreach(IMessageBase message in _messageChannel.Reader.ReadAllAsync())
         {
             await SendAsync(message);
         }
     }
     
-    public async Task SendAsync(MessageBase messageBase) => await _writer.WriteAsync(_socket, messageBase);
+    public async Task SendAsync(IMessageBase messageBase) => await _writer.WriteAsync(_socket, messageBase);
     
-    public void GetMessage(MessageBase message) => _messageChannel.Writer.TryWrite(message);
+    public void GetMessage(IMessageBase message) => _messageChannel.Writer.TryWrite(message);
     
     public void Dispose()
     {

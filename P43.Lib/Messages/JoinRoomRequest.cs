@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace P43.Lib.Messages;
-public class JoinRoomRequest : MessageBase
+﻿namespace P43.Lib.Messages;
+public class JoinRoomRequest : IMessageBase
 {
-
+    public Guid SenderId { get; set; }
+    public string Text { get; set; } = string.Empty;
+    public DateTime SentDate { get; set; }
+    public string? Login { get; set; }
 }

@@ -3,20 +3,23 @@ using P43.Lib.Messages;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using P43.Lib.Handlers.Client;
 
 namespace P43.Lib;
-public class Client : IDisposable
+public class Client(ResponseHandlersDispatcher dispatcher, ClientState state) : IDisposable
 {
     private readonly Socket _socket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     private readonly MessageWriter _writer = new();
     private readonly Stream_Reader _messageReader = new();
-    private bool _authorized = false;
+    private readonly ClientState _state = state;
     private bool _isActive = true;
     private readonly StringBuilder _input = new();
     private int _lines = 5;
     private readonly Lock _consoleLock = new();
     private int _messageCount = 0;
-    private CancellationTokenSource _cts = new();
+    private readonly ResponseHandlersDispatcher _dispatcher = dispatcher;
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
+
     public async Task Start()
     {
         await _socket.ConnectAsync("localhost", 8888);
@@ -37,7 +40,7 @@ public class Client : IDisposable
             
             _input.Clear();
 
-            MessageBase? message = null;
+            IMessageBase? message = null;
             
             try
             {
@@ -50,7 +53,7 @@ public class Client : IDisposable
                 continue;
             }
 
-            if(!_authorized && message is not LoginRequest)
+            if(!_state.IsAuthorized && message is not LoginRequest)
             {
                 WrongInput("You must login first using /login <username>");
 
@@ -99,9 +102,9 @@ public class Client : IDisposable
     {
         var str = Encoding.UTF8.GetString(message[0..length]);
 
-        MessageBase deserialized = JsonSerializer.Deserialize<MessageBase>(str);
+        IMessageBase deserialized = JsonSerializer.Deserialize<IMessageBase>(str);
         
-        HandleMessage(deserialized);
+        await HandleMessage(deserialized);
         
         ArrayPool<byte>.Shared.Return(message);
     }
@@ -113,56 +116,33 @@ public class Client : IDisposable
         _socket.Close();
     }
     
-    private void HandleMessage(MessageBase message)
+    private async Task HandleMessage(IMessageBase message)
     {
-        lock(_consoleLock)
+        await _semaphore.WaitAsync();
+
+        _messageCount++;
+        
+        if(_lines == Console.BufferHeight)
         {
-            _messageCount++;
-
-            if(_lines == Console.BufferHeight)
-            {
-                _lines = 5;
-            }
-
-            if(_messageCount >= Console.BufferHeight)
-            {
-                ClearLine(line: _lines);
-            }
-
-            Console.SetCursorPosition(0, _lines++);
-
-            switch(message)
-            {
-                case LoginResponse loginResponse:
-                    _authorized = loginResponse.Success;
-                    Console.WriteLine(loginResponse.Text);
-                    break;
-                case PublicMessage publicMessage:
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                    Console.WriteLine(publicMessage);
-                    Console.ResetColor();
-                    break;
-                case PrivateMessage privateMessage:
-                    Console.ForegroundColor = ConsoleColor.DarkMagenta;
-                    Console.WriteLine(privateMessage);
-                    Console.ResetColor();
-                    break;
-                case SystemMessage systemMessage:
-                    Console.ForegroundColor = ConsoleColor.DarkBlue;
-                    Console.WriteLine(systemMessage);
-                    Console.ResetColor();
-                    break;
-                default:
-                    Console.WriteLine($"Unknown message type, [{message.GetType().Name}]");
-                    break;
-            }
-
-            int pos = (_input.Length == 0) ? 0 : _input.Length;
-            Console.SetCursorPosition(pos, 0);
+            _lines = 5;
         }
+        
+        if(_messageCount >= Console.BufferHeight)
+        {
+            ClearLine(line: _lines);
+        }
+        
+        Console.SetCursorPosition(0, _lines++);
+        
+        await _dispatcher.DispatchAsync(message);
+        
+        int pos = (_input.Length == 0) ? 0 : _input.Length;
+        Console.SetCursorPosition(pos, 0);
+
+        _semaphore.Release();
     }
 
-    private MessageBase? CreateMessage(string input)
+    private IMessageBase? CreateMessage(string input)
     {
         if(!input.StartsWith('/'))
         {
@@ -256,7 +236,7 @@ public class Client : IDisposable
 
     private void WrongInput(string wrongInput)
     {
-        Console.WriteLine(wrongInput + " -- Press enter to continue");
+        Console.WriteLine(wrongInput + " -- Press enter to retry");
 
         while(true)
         {

@@ -13,10 +13,10 @@ namespace P43.Lib.Messages;
 [JsonDerivedType(typeof(JoinRoomRequest), "join_room_request")]
 [JsonDerivedType(typeof(ExitRequest), "exit_request")]
 [JsonDerivedType(typeof(LeaveRoomRequest), "leave_room_request")]
-public class MessageBase
+public interface IMessageBase
 {
-    public Guid SenderId { get; set; }
-    public string Text { get; set; } = string.Empty;
-    public DateTime SentDate { get; set; }
-    public string? Login { get; set; }
+    Guid SenderId { get; set; }
+    string Text { get; set; }
+    DateTime SentDate { get; set; }
+    string? Login { get; set; }
 }

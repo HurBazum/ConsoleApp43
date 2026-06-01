@@ -1,6 +1,9 @@
 ﻿namespace P43.Lib.Messages;
 
-public class LoginRequest : MessageBase
+public class LoginRequest : IMessageBase
 {
-
+    public Guid SenderId { get; set; }
+    public string Text { get; set; } = string.Empty;
+    public DateTime SentDate { get; set; }
+    public string? Login { get; set; }
 }

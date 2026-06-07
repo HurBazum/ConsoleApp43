@@ -2,7 +2,7 @@
 using P43.Lib.Messages;
 
 namespace P43.Lib.Handlers.Server;
-public class LeaveRoomRequestHandler(ISessionManager sessionManager, IRoomManager roomManager) : IMessageHandler<LeaveRoomRequest>
+public class LeaveRoomRequestHandler(ISessionManager sessionManager, IRoomManager roomManager) : IRequestHandler<LeaveRoomRequest>
 {
     private readonly ISessionManager _sessionManager = sessionManager;
     private readonly IRoomManager _roomManager = roomManager;

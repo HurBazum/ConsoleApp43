@@ -2,7 +2,7 @@
 using P43.Lib.Managers.Interfaces;
 
 namespace P43.Lib.Handlers.Server;
-public class CreateRoomRequestHandler(IRoomManager roomManager) : IMessageHandler<CreateRoomRequest>
+public class CreateRoomRequestHandler(IRoomManager roomManager) : IRequestHandler<CreateRoomRequest>
 {
     private readonly IRoomManager _roomManager = roomManager;
 

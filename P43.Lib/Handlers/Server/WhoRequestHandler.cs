@@ -3,7 +3,7 @@ using P43.Lib.Managers.Interfaces;
 
 namespace P43.Lib.Handlers.Server;
 
-public class WhoRequestHandler(ISessionManager sessionManager) : IMessageHandler<WhoRequest>
+public class WhoRequestHandler(ISessionManager sessionManager) : IRequestHandler<WhoRequest>
 {
     private readonly ISessionManager _sessionManager = sessionManager;
 

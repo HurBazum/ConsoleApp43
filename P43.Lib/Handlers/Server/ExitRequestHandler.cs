@@ -2,7 +2,7 @@
 using P43.Lib.Managers.Interfaces;
 
 namespace P43.Lib.Handlers.Server;
-public class ExitRequestHandler : IMessageHandler<ExitRequest>
+public class ExitRequestHandler : IRequestHandler<ExitRequest>
 {
     public Task HandleAsync(ExitRequest message, ClientSession session)
     {

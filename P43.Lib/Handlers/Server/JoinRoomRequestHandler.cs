@@ -2,7 +2,7 @@
 using P43.Lib.Managers.Interfaces;
 
 namespace P43.Lib.Handlers.Server;
-public class JoinRoomRequestHandler(IRoomManager roomManager, ISessionManager sessionManager) : IMessageHandler<JoinRoomRequest>
+public class JoinRoomRequestHandler(IRoomManager roomManager, ISessionManager sessionManager) : IRequestHandler<JoinRoomRequest>
 {
     private readonly IRoomManager _roomManager = roomManager;
     private readonly ISessionManager _sessionManager = sessionManager;

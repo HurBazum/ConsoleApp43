@@ -2,7 +2,7 @@
 using P43.Lib.Managers.Interfaces;
 
 namespace P43.Lib.Handlers.Server;
-public class PublicMessageHandler(ISessionManager sessionManager) : IMessageHandler<PublicMessage>
+public class PublicMessageHandler(ISessionManager sessionManager) : IRequestHandler<PublicMessage>
 {
     private readonly ISessionManager _sessionManager = sessionManager;
 

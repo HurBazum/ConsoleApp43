@@ -7,7 +7,7 @@ public class Stream_Reader : IDisposable
     public int Len { get; private set; } = 0;
     public byte[]? Data { get; private set; } = null;
     
-    public Func<byte[], int, Task>? OnComplete;
+    public Func<RentedBufferOwner, Task>? OnComplete;
     
     public int CurrentPosition { get; private set; } = 0;
     private int _headerPosition = 0;
@@ -58,9 +58,9 @@ public class Stream_Reader : IDisposable
                 
                 if(_bytesReceived == Len)
                 {
-                    var buffer = Data;
+                    RentedBufferOwner buffer = new(Data, Len);
                     Data = null;
-                    OnComplete?.Invoke(buffer, Len);
+                    OnComplete?.Invoke(buffer);
                         
                     State = State.ReadingHeader;
                     _headerPosition = 0;
@@ -77,6 +77,22 @@ public class Stream_Reader : IDisposable
         {
             ArrayPool<byte>.Shared.Return(Data);
             Data = null;
+        }
+    }
+}
+
+public struct RentedBufferOwner(byte[] array, int offset) : IMemoryOwner<byte>
+{
+    private readonly byte[] _array = array;
+    private readonly int _offset = offset;
+
+    public readonly Memory<byte> Memory => _array.AsMemory(0, _offset);
+
+    public void Dispose()
+    {
+        if(_array != null)
+        {
+            ArrayPool<byte>.Shared.Return(_array);
         }
     }
 }

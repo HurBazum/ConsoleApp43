@@ -4,20 +4,28 @@ using P43.Lib.Messages;
 namespace P43.Lib.Handlers.Client;
 public class ResponseHandlersDispatcher
 {
-    private readonly Dictionary<Type, object> _handlers = new();
+    private readonly Dictionary<Type, IResponseHandlerNG> _handlers = new();
 
     public void SetHandlers(params object[] handlers)
     {
         foreach(var handler in handlers)
         {
-            var type = handler
-                .GetType()
-                .GetInterfaces()
-                .First(
-                    i => i.IsGenericType == true &&
-                    i.GetGenericTypeDefinition() == typeof(IResponseHandler<>))
-                .GetGenericArguments()[0];
-            _handlers[type] = handler;
+            Type handlerType = handler.GetType();
+            Type? messageType = handlerType.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IResponseHandler<>)).GetGenericArguments()[0];
+
+            if(messageType is null)
+            {
+                continue;
+            }
+
+            Type wrapperType = typeof(ResponseHandlerWrapper<>);
+
+            Type wrapper = wrapperType.MakeGenericType(messageType);
+
+            if(Activator.CreateInstance(wrapper, handler) is IResponseHandlerNG wrapperInstance)
+            {
+                _handlers[messageType] = wrapperInstance;
+            }
         }
     }
 
@@ -27,7 +35,7 @@ public class ResponseHandlersDispatcher
 
         if(handler is not null)
         {
-            await ((dynamic)handler).HandleAsync((dynamic)message);
+            await handler.HandleAsync(message);
         }
     }
 }

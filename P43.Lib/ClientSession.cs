@@ -61,25 +61,30 @@ public class ClientSession : IDisposable
         }
     }
     
-    private Task HandleMessage(byte[] message, int length)
+    private Task HandleMessage(RentedBufferOwner message)
     {
-        var msg = JsonSerializer.Deserialize<IMessageBase>(message.AsSpan(0, length));
-        msg.SenderId = SessionId;
-        msg.SentDate = DateTime.UtcNow;
-        msg.Login = Login;
-        
-        OnMessageReceived?
-            .Invoke(this, 
-            new ReceivedMessageEventArgs 
-            {
-                Context = new()
+        try
+        {
+            var msg = JsonSerializer.Deserialize<IMessageBase>(message.Memory.Span);
+            msg.SenderId = SessionId;
+            msg.SentDate = DateTime.UtcNow;
+            msg.Login = Login;
+
+            OnMessageReceived?
+                .Invoke(this,
+                new ReceivedMessageEventArgs
                 {
-                    Message = msg,
-                    Session = this
-                }
-            });
-        
-        ArrayPool<byte>.Shared.Return(message);
+                    Context = new()
+                    {
+                        Message = msg,
+                        Session = this
+                    }
+                });
+        }
+        finally
+        {
+            message.Dispose();
+        }
 
         return Task.CompletedTask;
     }

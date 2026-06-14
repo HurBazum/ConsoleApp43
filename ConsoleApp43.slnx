@@ -3,4 +3,5 @@
   <Project Path="P43.CLientApp/P43.CLientApp.csproj" Id="e0e63137-3a82-4b8b-99a6-26d163238d92" />
   <Project Path="P43.Lib/P43.Lib.csproj" Id="f4c40060-8489-441e-803d-3e446af6841e" />
   <Project Path="P43.Server/P43.ServerApp.csproj" Id="df11533d-2b33-46ae-990d-d3f47c783426" />
+  <Project Path="P43.Wpf/P43.Wpf.csproj" Id="5859c61a-cea6-4059-b27b-501140b11535" />
 </Solution>

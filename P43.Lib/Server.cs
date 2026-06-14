@@ -9,14 +9,12 @@ using P43.Lib.Handlers.Server;
 
 namespace P43.Lib;
 
-public class Server(SessionManager sessionManager, RoomManager roomManager, RequestHandlersDispatcher dispatcher)
+public class Server(SessionManager sessionManager, RequestHandlersDispatcher dispatcher)
 {
     private Socket _socket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     private static Channel<MessageContext> _requestChannel = Channel.CreateBounded<MessageContext>(1000);
 
     private readonly ISessionManager _sessionManager = sessionManager;
-    private readonly IRoomManager _roomManager = roomManager;
-
     private readonly RequestHandlersDispatcher _dispatcher = dispatcher;
 
     public async Task Start()

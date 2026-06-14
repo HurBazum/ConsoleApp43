@@ -98,15 +98,13 @@ public class Client(ResponseHandlersDispatcher dispatcher, ClientState state) : 
         }
     }
     
-    private async Task HandleMessage(byte[] message, int length)
+    private async Task HandleMessage(RentedBufferOwner owner)
     {
-        var str = Encoding.UTF8.GetString(message[0..length]);
-
-        IMessageBase deserialized = JsonSerializer.Deserialize<IMessageBase>(str);
+        IMessageBase deserialized = JsonSerializer.Deserialize<IMessageBase>(owner.Memory.Span);
         
         await HandleMessage(deserialized);
-        
-        ArrayPool<byte>.Shared.Return(message);
+
+        owner.Dispose();
     }
     
     public void Dispose()

@@ -1,4 +1,6 @@
 ﻿using P43.Wpf.ViewModels;
+using P43.Wpf.Infrastructure.Stores;
+using P43.Wpf.Views.Windows;
 using System.Windows;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,37 +12,32 @@ namespace P43.Wpf
     /// </summary>
     public partial class App : Application
     {
-        private IHost? _host;
-        public IHost Host => _host ??= Program.CreateDefaultHostBuilder(Environment.GetCommandLineArgs()).Build();
+        public IHost _host = null!;
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            var host = Host;
+            _host = Host.CreateDefaultBuilder(e.Args)
+                .ConfigureServices(ConfigureServices)
+                .Build();
 
-            host.StartAsync().ConfigureAwait(false);
+            _host.Start();
 
-            var main = new MainWindow();
+            MainWindow main = _host.Services.GetRequiredService<MainWindow>();
 
-            var vm = host.Services.GetRequiredService<MainViewModel>();
+            INavigation nav = _host.Services.GetRequiredService<INavigation>();
 
-            main.DataContext = vm;
+            nav.Next<StartViewModel>();
 
             main.Show();
         }
 
-        protected override void OnExit(ExitEventArgs e)
-        {
-            base.OnExit(e);
+        
 
-            var host = Host;
-
-            host.StopAsync().ConfigureAwait(false);
-
-            host.Dispose();
-        }
-
-        public static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services.AddViewModels();
+        public static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
+            .AddStores()
+            .AddViewModels()
+            .AddWindows();
     }
 }

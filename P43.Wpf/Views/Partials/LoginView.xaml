@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:P43.Wpf.Views.Partials"
+             xmlns:vms="clr-namespace:P43.Wpf.ViewModels"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" d:Background="AliceBlue">
     <Grid>
@@ -13,6 +14,38 @@
             <RowDefinition />
             <RowDefinition />
         </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+            <TextBlock Text="Login Page" 
+                       FontSize="24" 
+                       FontWeight="Bold" 
+                       Margin="10" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+            <TextBlock Text="Username:" 
+                       FontSize="16" 
+                       Margin="5" />
+            <TextBox Width="200" 
+                     Margin="5"
+                     Text="{Binding Username, UpdateSourceTrigger=LostFocus}"/>
+        </StackPanel>
+        
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+            <TextBlock Text="Password:" 
+                       FontSize="16" 
+                       Margin="5" />
+            <PasswordBox Width="200" 
+                         Margin="5" />
+        </StackPanel>
 
         <StackPanel Grid.Row="3"
                     Orientation="Horizontal"
@@ -27,7 +60,7 @@
                     Width="150" 
                     Margin="5" 
                     Content="Cancel"
-                    />
+                    Command="{Binding BackCmd}" />
         </StackPanel>
         
     </Grid>

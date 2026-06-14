@@ -2,13 +2,11 @@
 using P43.Wpf.Infrastructure.Stores;
 using P43.Wpf.Infrastructure.Commands;
 using System.Windows.Input;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace P43.Wpf.ViewModels;
-public class StartViewModel(INavigation navigation, IServiceProvider provider) : BaseViewModel
+public class StartViewModel(INavigation navigation) : BaseViewModel
 {
     private readonly INavigation _navigation = navigation;
-    private readonly IServiceProvider _provider = provider;
     public string Title
     {
         get => field;
@@ -23,13 +21,11 @@ public class StartViewModel(INavigation navigation, IServiceProvider provider) :
 
     private void ToLoginViewCmdExecute(object? parameter)
     {
-        var vm = _provider.GetRequiredService<LoginViewModel>();
-        _navigation.Next(vm);
+        _navigation.Next<LoginViewModel>();
     }
 
     private void ToRegisterViewCmdExecute(object? parameter)
     {
-        var vm = _provider.GetRequiredService<RegisterViewModel>();
-        _navigation.Next(vm);
+        _navigation.Next<RegisterViewModel>();
     }
 }

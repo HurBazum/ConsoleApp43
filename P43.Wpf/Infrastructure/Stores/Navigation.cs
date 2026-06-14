@@ -1,15 +1,17 @@
 ﻿using P43.Wpf.ViewModels.Base;
-using P43.Wpf.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace P43.Wpf.Infrastructure.Stores;
 
-public class Navigation : INavigation
+public class Navigation(IServiceProvider provider) : INavigation
 {
+    private readonly IServiceProvider _provider = provider;
     public event Action? CurrentViewModelChanged;
-    public Stack<BaseViewModel> ViewModels { get; private set; } = [];
+    public Stack<BaseViewModel> ViewModels { get; private set; } = new();
     public BaseViewModel CurrentViewModel => ViewModels.Peek();
-    public void Next(BaseViewModel viewModel)
+    public void Next<T>() where T : BaseViewModel
     {
+        BaseViewModel viewModel = _provider.GetRequiredService<T>();
         ViewModels.Push(viewModel);
         OnCurrentViewModelChanged();
     }
@@ -24,9 +26,4 @@ public class Navigation : INavigation
     }
 
     private void OnCurrentViewModelChanged() => CurrentViewModelChanged?.Invoke();
-
-    public Navigation(StartViewModel svm)
-    {
-        ViewModels.Push(svm);
-    }
 }

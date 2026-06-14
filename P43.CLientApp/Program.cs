@@ -20,7 +20,7 @@ class Program
 
         dispatcher.SetHandlers(handlers);
 
-        Client client = new(dispatcher, state);
+        ClientService client = new(dispatcher, state);
 
         await client.Start();
 

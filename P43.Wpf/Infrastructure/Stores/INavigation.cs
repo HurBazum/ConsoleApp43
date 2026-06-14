@@ -4,6 +4,6 @@ public interface INavigation
 {
     event Action? CurrentViewModelChanged;
     BaseViewModel CurrentViewModel { get; }
-    void Next(BaseViewModel viewModel);
+    void Next<T>() where T : BaseViewModel;
     void Previous();
 }

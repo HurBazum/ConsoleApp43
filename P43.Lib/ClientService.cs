@@ -6,7 +6,7 @@ using System.Text.Json;
 using P43.Lib.Handlers.Client;
 
 namespace P43.Lib;
-public class Client(ResponseHandlersDispatcher dispatcher, ClientState state) : IDisposable
+public class ClientService(ResponseHandlersDispatcher dispatcher, ClientState state) : IDisposable
 {
     private readonly Socket _socket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     private readonly MessageWriter _writer = new();

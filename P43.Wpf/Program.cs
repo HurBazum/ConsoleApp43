@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Hosting;
+using System.Windows;
 
 namespace P43.Wpf;
 public class Program
 {
     [STAThread]
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         App app = new();
         app.InitializeComponent();

@@ -7,21 +7,6 @@
         mc:Ignorable="d"
         Title="{Binding Title}" Height="450" Width="800">
     <Grid>
-        <Grid.Resources>
-            <Style TargetType="{x:Type StackPanel}">
-                <Setter Property="VerticalAlignment" Value="Center" />
-                <Setter Property="HorizontalAlignment" Value="Center" />
-            </Style>
-        </Grid.Resources>
-        <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition />
-        </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0">
-            <TextBlock Text="{Binding Count}" />
-        </StackPanel>
-        <StackPanel Grid.Row="1">
-            <Button Content="Click me!" Command="{Binding CountCmd}" Width="150" Height="50" />
-        </StackPanel>
+        <ContentControl Content="{Binding ViewModel}" />
     </Grid>
 </Window>
